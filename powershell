@@ -1,0 +1,60 @@
+# Specify the folder to check, in this case, './New'
+$allFiles = Get-ChildItem -Path './New' -Recurse -Include *.jpg, *.jpeg, *.png, *.nef, *.arw, *.cr3, *.heic, *.gif, *.mov, *.mp4, *.mpg, *.avi, *.wmv, *.wma, *.asf, *.mpeg, *.flv, *.wav, *.mp3
+
+$allFiles | ForEach-Object {
+    $date = $_.CreationTime
+    $year = $date.ToString("yyyy")
+    $monthYear = $date.ToString("MM.yyyy")
+    $extension = $_.Extension.TrimStart('.').ToUpper()
+
+    $newName = $date.ToString("yyyy-MM-dd") + "_" + $extension
+    $randomNumber = Get-Random -Minimum 1000 -Maximum 9999
+    $newName = $newName + "_" + $randomNumber + $_.Extension
+
+    $folder = switch ($extension) {
+        "NEF" { "Photos\RAW Files" }
+        "ARW" { "Photos\RAW Files" }
+        "CR3" { "Photos\RAW Files" }
+        "HEIC" { "Photos\HEIC" }
+        "JPG" { "Photos\JPG" }
+        "JPEG" { "Photos\JPG" }
+        "PNG" { "Photos\PNG" }
+        "GIF" { "Photos\GIF" }
+        "MOV" { "Videos" }
+        "MP4" { "Videos" }
+        "MPG" { "Videos" }
+        "AVI" { "Videos" }
+        "WMV" { "Videos" }
+        "WMA" { "Videos" }
+        "ASF" { "Videos" }
+        "MPEG" { "Videos" }
+        "FLV" { "Videos" }
+        "WAV" { "Audio" }
+        "MP3" { "Audio" }
+        default { $extension }
+    }
+
+    $yearPath = Join-Path -Path '.' -ChildPath $year
+    if (-Not (Test-Path $yearPath)) {
+        New-Item -Path $yearPath -ItemType Directory
+    }
+
+    $monthYearPath = Join-Path -Path $yearPath -ChildPath $monthYear
+    if (-Not (Test-Path $monthYearPath)) {
+        New-Item -Path $monthYearPath -ItemType Directory
+    }
+
+    $folderPath = Join-Path -Path $monthYearPath -ChildPath $folder
+    if (-Not (Test-Path $folderPath)) {
+        New-Item -Path $folderPath -ItemType Directory -Force
+    }
+
+    $newFullPath = Join-Path -Path $folderPath -ChildPath $newName
+    while (Test-Path $newFullPath) {
+        $randomNumber = Get-Random -Minimum 1000 -Maximum 9999
+        $newName = $date.ToString("yyyy-MM-dd") + "_" + $extension + "_" + $randomNumber + $_.Extension
+        $newFullPath = Join-Path -Path $folderPath -ChildPath $newName
+    }
+
+    Move-Item $_.FullName -Destination $newFullPath
+}
