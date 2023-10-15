@@ -1,5 +1,5 @@
 # Especificar a pasta para verificar, neste caso, './New'
-$allFiles = Get-ChildItem -Path './New' -Recurse -Include *.jpg, *.jpeg, *.png, *.nef, *.arw, *.cr3, *.cr2, *.heic, *.gif, *.tif, *.dng, *.gpr, *.mov, *.mp4, *.mpg, *.avi, *.wmv, *.wma, *.asf, *.mpeg, *.flv, *.wav, *.mp3, *.m4v, *.lrv  # Adicionado .gpr
+$allFiles = Get-ChildItem -Path './New' -Recurse -Include *.jpg, *.jpeg, *.png, *.nef, *.arw, *.cr3, *.cr2, *.heic, *.gif, *.tif, *.dng, *.gpr, *.mov, *.mp4, *.mpg, *.avi, *.wmv, *.wma, *.asf, *.mpeg, *.flv, *.wav, *.mp3, *.m4v, *.lrv, *.raf  # Adicionado .raf
 
 $allFiles | ForEach-Object {
     $date = $_.CreationTime
@@ -16,6 +16,7 @@ $allFiles | ForEach-Object {
         "ARW" { "Photos\RAW Files" }
         "CR3" { "Photos\RAW Files" }
         "CR2" { "Photos\RAW Files" }
+        "RAF" { "Photos\RAW Files" }  # Adicionado suporte para arquivos RAF
         "HEIC" { "Photos\HEIC" }
         "JPG" { "Photos\JPG" }
         "JPEG" { "Photos\JPG" }
@@ -23,7 +24,7 @@ $allFiles | ForEach-Object {
         "GIF" { "Photos\GIF" }
         "TIF" { "Photos\TIF" }
         "DNG" { "Photos\DNG" }
-        "GPR" { "Photos\GPR" }  # Adicionado suporte para arquivos GPR
+        "GPR" { "Photos\GPR" }
         "MOV" { "Videos" }
         "MP4" { "Videos" }
         "MPG" { "Videos" }
