@@ -1,5 +1,5 @@
 # Especificar a pasta para verificar, neste caso, './New'
-$allFiles = Get-ChildItem -Path './New' -Recurse -Include *.jpg, *.jpeg, *.png, *.nef, *.arw, *.cr3, *.cr2, *.heic, *.gif, *.tif, *.mov, *.mp4, *.mpg, *.avi, *.wmv, *.wma, *.asf, *.mpeg, *.flv, *.wav, *.mp3, *.m4v, *.lrv  # Adicionado .lrv
+$allFiles = Get-ChildItem -Path './New' -Recurse -Include *.jpg, *.jpeg, *.png, *.nef, *.arw, *.cr3, *.cr2, *.heic, *.gif, *.tif, *.dng, *.mov, *.mp4, *.mpg, *.avi, *.wmv, *.wma, *.asf, *.mpeg, *.flv, *.wav, *.mp3, *.m4v, *.lrv  # Adicionado .dng
 
 $allFiles | ForEach-Object {
     $date = $_.CreationTime
@@ -22,6 +22,7 @@ $allFiles | ForEach-Object {
         "PNG" { "Photos\PNG" }
         "GIF" { "Photos\GIF" }
         "TIF" { "Photos\TIF" }
+        "DNG" { "Photos\DNG" }  # Adicionado suporte para arquivos DNG
         "MOV" { "Videos" }
         "MP4" { "Videos" }
         "MPG" { "Videos" }
@@ -32,7 +33,7 @@ $allFiles | ForEach-Object {
         "MPEG" { "Videos" }
         "FLV" { "Videos" }
         "M4V" { "Videos" }
-        "LRV" { "Videos" }  # Adicionado suporte para arquivos LRV
+        "LRV" { "Videos" }
         "WAV" { "Audio" }
         "MP3" { "Audio" }
         default { $extension }
