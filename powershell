@@ -1,5 +1,5 @@
 # Specify the folder to check, in this case, './New'
-$allFiles = Get-ChildItem -Path './New' -Recurse -Include *.jpg, *.jpeg, *.png, *.nef, *.arw, *.cr3, *.heic, *.gif, *.tif, *.mov, *.mp4, *.mpg, *.avi, *.wmv, *.wma, *.asf, *.mpeg, *.flv, *.wav, *.mp3, *.m4v  # Added .m4v
+$allFiles = Get-ChildItem -Path './New' -Recurse -Include *.jpg, *.jpeg, *.png, *.nef, *.arw, *.cr3, *.cr2, *.heic, *.gif, *.tif, *.mov, *.mp4, *.mpg, *.avi, *.wmv, *.wma, *.asf, *.mpeg, *.flv, *.wav, *.mp3, *.m4v  # Added .cr2
 
 $allFiles | ForEach-Object {
     $date = $_.CreationTime
@@ -15,6 +15,7 @@ $allFiles | ForEach-Object {
         "NEF" { "Photos\RAW Files" }
         "ARW" { "Photos\RAW Files" }
         "CR3" { "Photos\RAW Files" }
+        "CR2" { "Photos\RAW Files" }  # Added support for CR2 files
         "HEIC" { "Photos\HEIC" }
         "JPG" { "Photos\JPG" }
         "JPEG" { "Photos\JPG" }
@@ -30,7 +31,7 @@ $allFiles | ForEach-Object {
         "ASF" { "Videos" }
         "MPEG" { "Videos" }
         "FLV" { "Videos" }
-        "M4V" { "Videos" }  # Added support for M4V files
+        "M4V" { "Videos" }
         "WAV" { "Audio" }
         "MP3" { "Audio" }
         default { $extension }
