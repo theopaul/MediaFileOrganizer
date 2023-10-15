@@ -1,68 +1,85 @@
-# Especificar a pasta para verificar, neste caso, './New'
-$allFiles = Get-ChildItem -Path './New' -Recurse -Include *.jpg, *.jpeg, *.png, *.nef, *.arw, *.cr3, *.cr2, *.heic, *.gif, *.tif, *.dng, *.gpr, *.mov, *.mp4, *.mpg, *.avi, *.wmv, *.wma, *.asf, *.mpeg, *.flv, *.wav, *.mp3, *.m4v, *.lrv, *.raf, *.3gp  # Adicionado .3gp
+$ErrorLog = "./ErrorLog.txt"  # Log de erro será criado na pasta atual
+
+$allFiles = @()
+try {
+    $allFiles = Get-ChildItem -Path './New' -Recurse -Include *.jpg, *.jpeg, *.png, *.nef, *.arw, *.cr3, *.heic, *.gif, *.mov, *.mp4, *.mpg, *.avi, *.wmv, *.wma, *.asf, *.mpeg, *.flv, *.wav, *.mp3, *.m4v, *.CR2, *.LRV, *.DNG, *.GPR, *.RAF, *.3GP, *.MTS, *.tif -ErrorAction Stop
+}
+catch {
+    $errorMessage = "Failed to get child items. Error: $($_.Exception.Message)"
+    Write-Host $errorMessage
+    Add-Content -Path $ErrorLog -Value $errorMessage
+}
 
 $allFiles | ForEach-Object {
-    $date = $_.CreationTime
-    $year = $date.ToString("yyyy")
-    $monthYear = $date.ToString("MM.yyyy")
-    $extension = $_.Extension.TrimStart('.').ToUpper()
+    try {
+        $date = $_.CreationTime
+        $year = $date.ToString("yyyy")
+        $monthYear = $date.ToString("MM.yyyy")
+        $extension = $_.Extension.TrimStart('.').ToUpper()
 
-    $newName = $date.ToString("yyyy-MM-dd") + "_" + $extension
-    $randomNumber = Get-Random -Minimum 10000 -Maximum 999999
-    $newName = $newName + "_" + $randomNumber + $_.Extension
-
-    $folder = switch ($extension) {
-        "NEF" { "Photos\RAW Files" }
-        "ARW" { "Photos\RAW Files" }
-        "CR3" { "Photos\RAW Files" }
-        "CR2" { "Photos\RAW Files" }
-        "RAF" { "Photos\RAW Files" }
-        "HEIC" { "Photos\HEIC" }
-        "JPG" { "Photos\JPG" }
-        "JPEG" { "Photos\JPG" }
-        "PNG" { "Photos\PNG" }
-        "GIF" { "Photos\GIF" }
-        "TIF" { "Photos\TIF" }
-        "DNG" { "Photos\DNG" }
-        "GPR" { "Photos\GPR" }
-        "MOV" { "Videos" }
-        "MP4" { "Videos" }
-        "MPG" { "Videos" }
-        "AVI" { "Videos" }
-        "WMV" { "Videos" }
-        "WMA" { "Videos" }
-        "ASF" { "Videos" }
-        "MPEG" { "Videos" }
-        "FLV" { "Videos" }
-        "M4V" { "Videos" }
-        "LRV" { "Videos" }
-        "3GP" { "Videos" }  # Adicionado suporte para arquivos 3GP
-        "WAV" { "Audio" }
-        "MP3" { "Audio" }
-        default { $extension }
-    }
-
-    $yearPath = Join-Path -Path '.' -ChildPath $year
-    if (-Not (Test-Path $yearPath)) {
-        New-Item -Path $yearPath -ItemType Directory
-    }
-
-    $monthYearPath = Join-Path -Path $yearPath -ChildPath $monthYear
-    if (-Not (Test-Path $monthYearPath)) {
-        New-Item -Path $monthYearPath -ItemType Directory
-    }
-
-    $folderPath = Join-Path -Path $monthYearPath -ChildPath $folder
-    if (-Not (Test-Path $folderPath)) {
-        New-Item -Path $folderPath -ItemType Directory -Force
-    }
-
-    $newFullPath = Join-Path -Path $folderPath -ChildPath $newName
-    while (Test-Path $newFullPath) {
+        $newName = $date.ToString("yyyy-MM-dd") + "_" + $extension
         $randomNumber = Get-Random -Minimum 10000 -Maximum 999999
-        $newName = $date.ToString("yyyy-MM-dd") + "_" + $extension + "_" + $randomNumber + $_.Extension
-        $newFullPath = Join-Path -Path $folderPath -ChildPath $newName
-    }
+        $newName = $newName + "_" + $randomNumber + $_.Extension
 
-    Move-Item $_.FullName -Destination $newFullPath
+        $folder = switch ($extension) {
+            "NEF" { "Photos\RAW Files" }
+            "ARW" { "Photos\RAW Files" }
+            "CR3" { "Photos\RAW Files" }
+            "CR2" { "Photos\RAW Files" }
+            "RAF" { "Photos\RAW Files" }
+            "HEIC" { "Photos\HEIC" }
+            "JPG" { "Photos\JPG" }
+            "JPEG" { "Photos\JPG" }
+            "PNG" { "Photos\PNG" }
+            "GIF" { "Photos\GIF" }
+            "TIF" { "Photos\TIF" }
+            "DNG" { "Photos\DNG" }
+            "GPR" { "Photos\GPR" }
+            "MOV" { "Videos" }
+            "MP4" { "Videos" }
+            "MPG" { "Videos" }
+            "AVI" { "Videos" }
+            "WMV" { "Videos" }
+            "WMA" { "Videos" }
+            "ASF" { "Videos" }
+            "MPEG" { "Videos" }
+            "FLV" { "Videos" }
+            "LRV" { "Videos" }
+            "3GP" { "Videos" }
+            "M4V" { "Videos" }
+            "MTS" { "Videos" }
+            "WAV" { "Audio" }
+            "MP3" { "Audio" }
+            default { $extension }
+        }
+
+        $yearPath = Join-Path -Path '.' -ChildPath $year
+        if (-Not (Test-Path $yearPath)) {
+            New-Item -Path $yearPath -ItemType Directory
+        }
+
+        $monthYearPath = Join-Path -Path $yearPath -ChildPath $monthYear
+        if (-Not (Test-Path $monthYearPath)) {
+            New-Item -Path $monthYearPath -ItemType Directory
+        }
+
+        $folderPath = Join-Path -Path $monthYearPath -ChildPath $folder
+        if (-Not (Test-Path $folderPath)) {
+            New-Item -Path $folderPath -ItemType Directory -Force
+        }
+
+        $newFullPath = Join-Path -Path $folderPath -ChildPath $newName
+        while (Test-Path $newFullPath) {
+            $randomNumber = Get-Random -Minimum 10000 -Maximum 999999
+            $newName = $date.ToString("yyyy-MM-dd") + "_" + $extension + "_" + $randomNumber + $_.Extension
+            $newFullPath = Join-Path -Path $folderPath -ChildPath $newName
+        }
+
+        Move-Item $_.FullName -Destination $newFullPath
+    }
+    catch {
+        $itemError = "Error processing file $($_.FullName). Error: $($_.Exception.Message)"
+        Write-Host $itemError
+        Add-Content -Path $ErrorLog -Value $itemError
+    }
 }
