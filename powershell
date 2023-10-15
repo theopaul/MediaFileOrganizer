@@ -8,7 +8,7 @@ $allFiles | ForEach-Object {
     $extension = $_.Extension.TrimStart('.').ToUpper()
 
     $newName = $date.ToString("yyyy-MM-dd") + "_" + $extension
-    $randomNumber = Get-Random -Minimum 1000 -Maximum 9999
+    $randomNumber = Get-Random -Minimum 10000 -Maximum 999999  # Adjusted range for random numbers
     $newName = $newName + "_" + $randomNumber + $_.Extension
 
     $folder = switch ($extension) {
@@ -51,7 +51,7 @@ $allFiles | ForEach-Object {
 
     $newFullPath = Join-Path -Path $folderPath -ChildPath $newName
     while (Test-Path $newFullPath) {
-        $randomNumber = Get-Random -Minimum 1000 -Maximum 9999
+        $randomNumber = Get-Random -Minimum 10000 -Maximum 999999  # Adjusted range for random numbers
         $newName = $date.ToString("yyyy-MM-dd") + "_" + $extension + "_" + $randomNumber + $_.Extension
         $newFullPath = Join-Path -Path $folderPath -ChildPath $newName
     }
