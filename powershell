@@ -1,5 +1,5 @@
 # Specify the folder to check, in this case, './New'
-$allFiles = Get-ChildItem -Path './New' -Recurse -Include *.jpg, *.jpeg, *.png, *.nef, *.arw, *.cr3, *.heic, *.gif, *.mov, *.mp4, *.mpg, *.avi, *.wmv, *.wma, *.asf, *.mpeg, *.flv, *.wav, *.mp3
+$allFiles = Get-ChildItem -Path './New' -Recurse -Include *.jpg, *.jpeg, *.png, *.nef, *.arw, *.cr3, *.heic, *.gif, *.tif, *.mov, *.mp4, *.mpg, *.avi, *.wmv, *.wma, *.asf, *.mpeg, *.flv, *.wav, *.mp3, *.m4v  # Added .m4v
 
 $allFiles | ForEach-Object {
     $date = $_.CreationTime
@@ -8,7 +8,7 @@ $allFiles | ForEach-Object {
     $extension = $_.Extension.TrimStart('.').ToUpper()
 
     $newName = $date.ToString("yyyy-MM-dd") + "_" + $extension
-    $randomNumber = Get-Random -Minimum 10000 -Maximum 999999  # Adjusted range for random numbers
+    $randomNumber = Get-Random -Minimum 10000 -Maximum 999999
     $newName = $newName + "_" + $randomNumber + $_.Extension
 
     $folder = switch ($extension) {
@@ -20,6 +20,7 @@ $allFiles | ForEach-Object {
         "JPEG" { "Photos\JPG" }
         "PNG" { "Photos\PNG" }
         "GIF" { "Photos\GIF" }
+        "TIF" { "Photos\TIF" }
         "MOV" { "Videos" }
         "MP4" { "Videos" }
         "MPG" { "Videos" }
@@ -29,6 +30,7 @@ $allFiles | ForEach-Object {
         "ASF" { "Videos" }
         "MPEG" { "Videos" }
         "FLV" { "Videos" }
+        "M4V" { "Videos" }  # Added support for M4V files
         "WAV" { "Audio" }
         "MP3" { "Audio" }
         default { $extension }
@@ -51,7 +53,7 @@ $allFiles | ForEach-Object {
 
     $newFullPath = Join-Path -Path $folderPath -ChildPath $newName
     while (Test-Path $newFullPath) {
-        $randomNumber = Get-Random -Minimum 10000 -Maximum 999999  # Adjusted range for random numbers
+        $randomNumber = Get-Random -Minimum 10000 -Maximum 999999
         $newName = $date.ToString("yyyy-MM-dd") + "_" + $extension + "_" + $randomNumber + $_.Extension
         $newFullPath = Join-Path -Path $folderPath -ChildPath $newName
     }
