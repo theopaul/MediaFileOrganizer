@@ -1,0 +1,55 @@
+$ErrorLog = "./ErrorLog.txt"
+
+try {
+    $allFiles = Get-ChildItem -Path './New' -Recurse -Include *.pdf, *.doc, *.docx, *.xls, *.xlsx, *.ppt, *.pptx, *.pot, *.rar, *.zip, *.AI, *.PSD, *.rtf, *.xmp, *.dcp, *.lrtemplate -ErrorAction Stop
+}
+catch {
+    $errorMessage = "Failed to get child items. Error: $($_.Exception.Message)"
+    Write-Host $errorMessage
+    Add-Content -Path $ErrorLog -Value $errorMessage
+}
+
+$allFiles | ForEach-Object {
+    try {
+        $date = $_.LastWriteTime
+        $year = $date.ToString("yyyy")
+        $dateFormatted = $date.ToString("yyyy-MM-dd")
+        $extension = $_.Extension.TrimStart('.').ToUpper()
+
+        # Limpeza e formatação do nome do arquivo
+        $cleanName = $_.BaseName -replace '[-\s]', '_'  # substitui espaço e - por _
+        $cleanName = $cleanName -replace '[^\w]', ''   # remove caracteres especiais
+        $cleanName = $cleanName -replace '[_]+', '_'   # substitui múltiplos "_" por um único "_"
+        $cleanName = $cleanName.ToUpper()              # converte para maiúsculas
+
+        $newName = "$dateFormatted-$extension-${cleanName}$($_.Extension)"
+
+        $subfolder = switch ($extension) {
+            {$_ -in "PDF"}  { "PDF" }
+            {$_ -in "DOC", "DOCX", "RTF"} { "Word" }
+            {$_ -in "XLS", "XLSX"} { "Excel" }
+            {$_ -in "PPT", "PPTX", "POT"} { "PowerPoint" }
+            {$_ -in "RAR"}  { "Compressed" }
+            {$_ -in "ZIP"}  { "Compressed" }
+            {$_ -in "AI"}   { "Illustrator" }
+            {$_ -in "PSD"}  { "Photoshop" }
+            {$_ -in "XMP"}  { "Adobe LightRoom\Presets" }
+            {$_ -in "DCP"}  { "Adobe LightRoom\DCP" }
+            {$_ -in "LRTEMPLATE"}  { "Adobe LightRoom\LRT Template" }
+            default { $extension }
+        }
+
+        $folderPath = Join-Path -Path '.' -ChildPath "$year\$subfolder"
+        if (-Not (Test-Path $folderPath)) {
+            New-Item -Path $folderPath -ItemType Directory -Force
+        }
+
+        $newFullPath = Join-Path -Path $folderPath -ChildPath $newName
+        Move-Item $_.FullName -Destination $newFullPath
+    }
+    catch {
+        $itemError = "Error processing file $($_.FullName). Error: $($_.Exception.Message)"
+        Write-Host $itemError
+        Add-Content -Path $ErrorLog -Value $itemError
+    }
+}
