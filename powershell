@@ -2,7 +2,7 @@ $ErrorLog = "./ErrorLog.txt"  # Log de erro será criado na pasta atual
 
 $allFiles = @()
 try {
-    $allFiles = Get-ChildItem -Path './New' -Recurse -Include *.jpg, *.jpeg, *.png, *.nef, *.arw, *.cr3, *.heic, *.gif, *.mov, *.mp4, *.mpg, *.avi, *.wmv, *.wma, *.asf, *.mpeg, *.flv, *.wav, *.mp3, *.m4v, *.CR2, *.LRV, *.DNG, *.GPR, *.RAF, *.3GP, *.MTS, *.tif -ErrorAction Stop
+    $allFiles = Get-ChildItem -Path './New' -Recurse -Include *.jpg, *.jpeg, *.png, *.nef, *.arw, *.cr3, *.heic, *.gif, *.mov, *.mp4, *.mpg, *.avi, *.wmv, *.wma, *.asf, *.mpeg, *.flv, *.wav, *.mp3, *.m4v, *.CR2, *.LRV, *.DNG, *.GPR, *.RAF, *.3GP, *.MTS, *.tif, *.mkv -ErrorAction Stop
 }
 catch {
     $errorMessage = "Failed to get child items. Error: $($_.Exception.Message)"
@@ -47,6 +47,7 @@ $allFiles | ForEach-Object {
             "LRV" { "Videos" }
             "3GP" { "Videos" }
             "M4V" { "Videos" }
+            "MKV" { "Videos" }  # Adicionado MKV
             "MTS" { "Videos" }
             "WAV" { "Audio" }
             "MP3" { "Audio" }
@@ -80,6 +81,4 @@ $allFiles | ForEach-Object {
     catch {
         $itemError = "Error processing file $($_.FullName). Error: $($_.Exception.Message)"
         Write-Host $itemError
-        Add-Content -Path $ErrorLog -Value $itemError
-    }
-}
+        Add
