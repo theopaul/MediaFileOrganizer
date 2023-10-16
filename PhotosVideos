@@ -1,4 +1,4 @@
-$ErrorLog = "./ErrorLog.txt"  # Log de erro será criado na pasta atual
+$ErrorLog = "./ErrorLog.txt"  # Error log will be created in the current folder
 
 $allFiles = @()
 try {
@@ -47,7 +47,7 @@ $allFiles | ForEach-Object {
             "LRV" { "Videos" }
             "3GP" { "Videos" }
             "M4V" { "Videos" }
-            "MKV" { "Videos" }  # Adicionado MKV
+            "MKV" { "Videos" }
             "MTS" { "Videos" }
             "WAV" { "Audio" }
             "MP3" { "Audio" }
@@ -81,4 +81,6 @@ $allFiles | ForEach-Object {
     catch {
         $itemError = "Error processing file $($_.FullName). Error: $($_.Exception.Message)"
         Write-Host $itemError
-        Add
+        Add-Content -Path $ErrorLog -Value $itemError
+    }
+}
