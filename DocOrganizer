@@ -1,12 +1,37 @@
+# Define log file path
 $ErrorLog = "./ErrorLog.txt"
 
+# Logging function for easier and centralized logging
+Function LogError($message) {
+    Write-Host $message
+    Add-Content -Path $ErrorLog -Value $message
+}
+
+# Function to clean file name
+Function GetCleanFileName($name) {
+    $cleanName = $name -replace '[-\s]', '_'
+    $cleanName = $cleanName -replace '[^\w]', ''
+    $cleanName = $cleanName -replace '[_]+', '_'
+    return $cleanName.ToUpper()
+}
+
+# Check if a file with the same name exists; if yes, append a unique number
+Function GetUniqueFileName($path, $name, $extension) {
+    $counter = 1
+    $newName = $name
+    while (Test-Path (Join-Path -Path $path -ChildPath "$newName$extension")) {
+        $newName = "$name`_$counter"
+        $counter++
+    }
+    return "$newName$extension"
+}
+
 try {
-    $allFiles = Get-ChildItem -Path './New' -Recurse -Include *.pdf, *.doc, *.docx, *.xls, *.xlsx, *.ppt, *.pptx, *.pot, *.rar, *.zip, *.AI, *.PSD, *.rtf, *.xmp, *.dcp, *.lrtemplate -ErrorAction Stop
+    $allFiles = Get-ChildItem -Path './New' -Recurse -Include *.pdf, *.doc, *.docx, *.xls, *.xlsx, *.ppt, *.pptx, *.pot, *.rar, *.zip, *.AI, *.PSD, *.rtf, *.xmp, *.dcp, *.lrtemplate, *.indd, *.indb, *.prproj, *.txt, *.aep, *.xml -ErrorAction Stop
 }
 catch {
-    $errorMessage = "Failed to get child items. Error: $($_.Exception.Message)"
-    Write-Host $errorMessage
-    Add-Content -Path $ErrorLog -Value $errorMessage
+    LogError "Failed to get child items. Error: $($_.Exception.Message)"
+    exit
 }
 
 $allFiles | ForEach-Object {
@@ -15,41 +40,40 @@ $allFiles | ForEach-Object {
         $year = $date.ToString("yyyy")
         $dateFormatted = $date.ToString("yyyy-MM-dd")
         $extension = $_.Extension.TrimStart('.').ToUpper()
-
-        # Limpeza e formatação do nome do arquivo
-        $cleanName = $_.BaseName -replace '[-\s]', '_'  # substitui espaço e - por _
-        $cleanName = $cleanName -replace '[^\w]', ''   # remove caracteres especiais
-        $cleanName = $cleanName -replace '[_]+', '_'   # substitui múltiplos "_" por um único "_"
-        $cleanName = $cleanName.ToUpper()              # converte para maiúsculas
-
-        $newName = "$dateFormatted-$extension-${cleanName}$($_.Extension)"
+        $cleanName = GetCleanFileName $_.BaseName
 
         $subfolder = switch ($extension) {
-            {$_ -in "PDF"}  { "PDF" }
+            "PDF" { "PDF" }
             {$_ -in "DOC", "DOCX", "RTF"} { "Word" }
             {$_ -in "XLS", "XLSX"} { "Excel" }
             {$_ -in "PPT", "PPTX", "POT"} { "PowerPoint" }
-            {$_ -in "RAR"}  { "Compressed" }
-            {$_ -in "ZIP"}  { "Compressed" }
-            {$_ -in "AI"}   { "Illustrator" }
-            {$_ -in "PSD"}  { "Photoshop" }
-            {$_ -in "XMP"}  { "Adobe LightRoom\Presets" }
-            {$_ -in "DCP"}  { "Adobe LightRoom\DCP" }
-            {$_ -in "LRTEMPLATE"}  { "Adobe LightRoom\LRT Template" }
-            default { $extension }
+            {$_ -in "RAR", "ZIP"} { "Compressed" }
+            {$_ -in "AI"} { "Adobe Illustrator" }
+            {$_ -in "PSD"} { "Adobe Photoshop" }
+            {$_ -in "XMP"} { "Adobe LightRoom" }
+            {$_ -in "DCP"} { "Adobe LightRoom" }
+            {$_ -in "LRTEMPLATE"} { "Adobe LightRoom" }
+            {$_ -in "INDD", "INDB"} { "Adobe InDesign" }
+            {$_ -in "PRPROJ"} { "Adobe Premier" }
+            {$_ -in "AEP"} { "Adobe After Effects" }
+            {$_ -in "TXT"} { "Text" }
+            {$_ -in "XML"} { "XML" }
+            default { "Archive" }
         }
 
         $folderPath = Join-Path -Path '.' -ChildPath "$year\$subfolder"
         if (-Not (Test-Path $folderPath)) {
             New-Item -Path $folderPath -ItemType Directory -Force
+            New-Item -Path "$folderPath\Info.txt" -ItemType File -Value "This is a new folder for $subfolder files" -Force
         }
+
+        $newName = "$dateFormatted-$extension-$cleanName$($_.Extension)"
+        $newName = GetUniqueFileName $folderPath $newName $_.Extension
 
         $newFullPath = Join-Path -Path $folderPath -ChildPath $newName
         Move-Item $_.FullName -Destination $newFullPath
     }
     catch {
-        $itemError = "Error processing file $($_.FullName). Error: $($_.Exception.Message)"
-        Write-Host $itemError
-        Add-Content -Path $ErrorLog -Value $itemError
+        LogError "Error processing file $($_.FullName). Error: $($_.Exception.Message)"
     }
 }
